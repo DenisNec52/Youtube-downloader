@@ -8,7 +8,7 @@ import time
 from collections import defaultdict
 from pathlib import Path
 
-from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi import FastAPI, File, Header, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -58,6 +58,7 @@ def _check_auth(x_api_key: str | None) -> None:
 
 @app.on_event("startup")
 def on_startup():
+    downloader.init_cookies_from_env()
     if downloader.is_web_mode():
         downloader.cleanup_old_web_downloads()
         downloader.check_and_update_yt_dlp()  # controllo immediato all'avvio del container
@@ -91,7 +92,18 @@ def status():
         "yt_dlp_version": downloader.yt_dlp_version(),
         "auth_required": downloader.is_web_mode() and bool(API_KEY),
         "cookie_browsers": downloader.available_cookie_browsers(),
+        "cookies_file_active": downloader.cookies_file_present(),
     }
+
+
+@app.post("/api/cookies-upload")
+async def upload_cookies(file: UploadFile = File(...), x_api_key: str | None = Header(default=None)):
+    _check_auth(x_api_key)
+    content = await file.read()
+    if b"youtube.com" not in content and b"# Netscape" not in content:
+        raise HTTPException(status_code=400, detail="non sembra un cookies.txt valido (formato Netscape)")
+    downloader.save_cookies_file(content)
+    return {"saved": True}
 
 
 @app.post("/api/probe")

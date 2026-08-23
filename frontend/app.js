@@ -30,6 +30,10 @@ const els = {
   googleActions: document.getElementById("google-actions"),
   googleStatus: document.getElementById("google-status"),
   googlePlaylists: document.getElementById("google-playlists"),
+  cookiesCard: document.getElementById("cookies-card"),
+  cookiesStatus: document.getElementById("cookies-status"),
+  cookiesFileInput: document.getElementById("cookies-file-input"),
+  cookiesUploadBtn: document.getElementById("cookies-upload-btn"),
 };
 
 let state = {
@@ -129,11 +133,41 @@ async function loadStatus() {
     }
   }
 
+  els.cookiesCard.classList.remove("hidden");
+  els.cookiesStatus.textContent = data.cookies_file_active
+    ? "File cookies.txt attivo."
+    : "Nessun file caricato.";
+
   if (!isWeb) {
     els.googleCard.classList.remove("hidden");
     loadGoogleStatus();
   }
 }
+
+els.cookiesUploadBtn.addEventListener("click", async () => {
+  const file = els.cookiesFileInput.files[0];
+  if (!file) {
+    showError("Seleziona prima un file cookies.txt");
+    return;
+  }
+  const formData = new FormData();
+  formData.append("file", file);
+  try {
+    const res = await api("/api/cookies-upload", {
+      method: "POST",
+      headers: authHeaders(),
+      body: formData,
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Caricamento fallito");
+    }
+    els.cookiesStatus.textContent = "File cookies.txt attivo.";
+    clearError();
+  } catch (e) {
+    showError("Caricamento cookies.txt fallito: " + e.message);
+  }
+});
 
 async function loadGoogleStatus() {
   const res = await api("/api/google/status");

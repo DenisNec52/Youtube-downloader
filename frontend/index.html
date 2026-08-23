@@ -32,6 +32,18 @@
       <div id="google-playlists"></div>
     </section>
 
+    <section id="cookies-card" class="card hidden">
+      <h3>Sessione YouTube (cookies.txt)</h3>
+      <p id="cookies-status" class="muted">Nessun file caricato.</p>
+      <p class="muted">
+        Se YouTube risponde "Sign in to confirm you're not a bot" (comune sui
+        server cloud), carica un cookies.txt esportato dal tuo browser (loggato
+        su YouTube) con un'estensione tipo "Get cookies.txt LOCALLY".
+      </p>
+      <input id="cookies-file-input" type="file" accept=".txt" />
+      <button id="cookies-upload-btn" class="small">Carica</button>
+    </section>
+
     <section class="card">
       <label for="url">URL video / playlist</label>
       <div class="row">

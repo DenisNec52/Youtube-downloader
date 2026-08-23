@@ -31,6 +31,13 @@ APP_DATA_DIR.mkdir(parents=True, exist_ok=True)
 HISTORY_FILE = APP_DATA_DIR / "history.json"
 WEB_DOWNLOADS_DIR = APP_DATA_DIR / "web_downloads"
 
+# cookie di sessione YouTube (formato Netscape, esportati dal browser
+# dell'utente) usati per TUTTE le richieste quando presenti: risolvono sia
+# i contenuti privati sia il blocco "Sign in to confirm you're not a bot"
+# che YouTube applica spesso agli IP dei server cloud (Render, AWS, ecc.),
+# anche su video pubblici.
+COOKIES_FILE = APP_DATA_DIR / "cookies.txt"
+
 DEFAULT_OUTPUT_DIR = str(Path.home() / "Videos" / "YTGrabber")
 
 BUNDLED_FFMPEG_DIR = Path(__file__).resolve().parent.parent / "ffmpeg"
@@ -74,6 +81,30 @@ def yt_dlp_version() -> str:
 
 def aria2c_available() -> bool:
     return shutil.which("aria2c") is not None
+
+
+def init_cookies_from_env() -> None:
+    """Se impostata, decodifica YTGRABBER_COOKIES_B64 (contenuto di un
+    cookies.txt esportato dal browser, codificato in base64) e lo scrive su
+    disco. Pensato per web mode: il filesystem li' e' effimero (si svuota ad
+    ogni riavvio del container), quindi tenerli in una variabile d'ambiente
+    e' l'unico modo che sopravvive ai riavvii automatici (es. auto-update)."""
+    b64 = os.environ.get("YTGRABBER_COOKIES_B64")
+    if not b64:
+        return
+    import base64
+    try:
+        COOKIES_FILE.write_bytes(base64.b64decode(b64))
+    except Exception:  # noqa: BLE001 - valore malformato: ignora, non deve bloccare l'avvio
+        pass
+
+
+def cookies_file_present() -> bool:
+    return COOKIES_FILE.exists() and COOKIES_FILE.stat().st_size > 0
+
+
+def save_cookies_file(content: bytes) -> None:
+    COOKIES_FILE.write_bytes(content)
 
 
 # browser -> percorsi tipici del profilo su Windows, solo per capire se e'
@@ -126,6 +157,12 @@ def _base_opts(browser_cookies: str | None = None) -> dict:
     # a cui l'account ha accesso. Mai usato per bypassare video non suoi.
     if browser_cookies and not is_web_mode():
         opts["cookiesfrombrowser"] = (browser_cookies,)
+    elif cookies_file_present():
+        # file cookies.txt caricato dall'utente (o da YTGRABBER_COOKIES_B64):
+        # unico modo di autenticarsi quando non c'e' un browser locale
+        # (web mode) — risolve anche il blocco anti-bot di YouTube sugli IP
+        # dei server cloud, che scatta pure su video pubblici.
+        opts["cookiefile"] = str(COOKIES_FILE)
 
     return opts
 

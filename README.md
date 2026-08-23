@@ -94,6 +94,34 @@ configurazione richiesta — ma **chiudi il browser scelto** prima di usarlo,
 altrimenti alcuni browser bloccano la lettura del file dei cookie mentre
 sono aperti.
 
+## Errore "Sign in to confirm you're not a bot" (soprattutto su Render/cloud)
+
+YouTube blocca spesso le richieste dagli IP dei server cloud (Render, AWS,
+ecc.) chiedendo conferma di login — capita anche su video pubblici, non solo
+privati. La soluzione e' fornire un cookies.txt esportato dal tuo browser:
+
+1. Installa un'estensione come **"Get cookies.txt LOCALLY"** (Chrome/Edge)
+   o equivalente per Firefox.
+2. Vai su youtube.com da loggato, esporta i cookie in formato Netscape
+   (cookies.txt).
+3. Nell'app, sezione "Sessione YouTube (cookies.txt)", carica il file.
+
+**Attenzione in modalita' web (Render):** il filesystem del container e'
+effimero — il file caricato via UI sparisce ad ogni riavvio (compreso
+quello automatico per l'aggiornamento giornaliero di yt-dlp). Per una
+soluzione che sopravvive ai riavvii, imposta invece su Render la variabile
+d'ambiente `YTGRABBER_COOKIES_B64` con il contenuto del file codificato in
+base64:
+
+```
+certutil -encode cookies.txt cookies.b64   (Windows, poi togli le righe BEGIN/END)
+```
+
+oppure con Python: `python -c "import base64; print(base64.b64encode(open('cookies.txt','rb').read()).decode())"`
+
+I cookie di sessione scadono e vanno ri-esportati periodicamente quando
+YouTube torna a chiedere il login.
+
 ## Login "Accedi con Google" (sfoglia le tue playlist)
 
 Per vedere le tue playlist YouTube direttamente nell'app (invece di
