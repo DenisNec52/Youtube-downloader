@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+
+# binari ffmpeg locali (Windows): non vanno in git, il container Render usa
+# ffmpeg installato via apt (vedi Dockerfile)
+ffmpeg/
+
+# credenziali: MAI committare
+google_client_secret.json
+google_token.json
+
+# dati utente locali
+.ytgrabber/

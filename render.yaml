@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: ytgrabber-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/status
+    envVars:
+      - key: YTGRABBER_MODE
+        value: web
+      - key: YTGRABBER_API_KEY
+        generateValue: true  # Render genera una chiave; usala nel frontend

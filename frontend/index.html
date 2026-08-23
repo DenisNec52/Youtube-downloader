@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>YTGrabber</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>YTGrabber</h1>
+        <p class="subtitle">Download personale — YouTube e centinaia di altri siti supportati da yt-dlp</p>
+      </div>
+      <div class="version-box">
+        <span id="ytdlp-version" class="muted"></span>
+        <button id="update-btn" class="small">Aggiorna yt-dlp</button>
+      </div>
+    </header>
+
+    <div id="ffmpeg-warning" class="banner banner-warn hidden">
+      ⚠ FFmpeg non trovato. Installalo per abilitare conversione MP3 e unione audio/video in alta qualità.
+    </div>
+
+    <section id="google-card" class="card hidden">
+      <div class="history-header">
+        <h3>Account Google</h3>
+        <div id="google-actions"></div>
+      </div>
+      <p id="google-status" class="muted">Non collegato.</p>
+      <div id="google-playlists"></div>
+    </section>
+
+    <section class="card">
+      <label for="url">URL video / playlist</label>
+      <div class="row">
+        <input id="url" type="text" placeholder="https://..." autocomplete="off" />
+        <button id="analyze-btn">Analizza</button>
+      </div>
+    </section>
+
+    <section id="result" class="card hidden">
+      <div class="video-info">
+        <img id="thumb" alt="" />
+        <div>
+          <h2 id="video-title"></h2>
+          <p id="video-meta" class="muted"></p>
+        </div>
+      </div>
+
+      <div class="mode-switch">
+        <button class="mode-btn active" data-mode="video">Video</button>
+        <button class="mode-btn" data-mode="audio">Solo audio</button>
+      </div>
+
+      <label for="quality">Qualità (dalla più alta alla più bassa)</label>
+      <select id="quality"></select>
+
+      <div id="cookies-row" class="hidden">
+        <label for="cookie-browser">Account per contenuti privati/con restrizioni</label>
+        <select id="cookie-browser">
+          <option value="">Nessuno (anonimo)</option>
+        </select>
+      </div>
+
+      <label class="checkbox-row hidden" id="playlist-row">
+        <input type="checkbox" id="whole-playlist" />
+        Scarica l'intera playlist (non solo questo elemento)
+      </label>
+
+      <label class="checkbox-row hidden" id="subs-row">
+        <input type="checkbox" id="embed-subs" />
+        Includi sottotitoli (IT/EN) nel video
+      </label>
+
+      <div id="outdir-row">
+        <label for="outdir">Cartella di destinazione</label>
+        <input id="outdir" type="text" />
+      </div>
+
+      <button id="download-btn" class="primary">Aggiungi alla coda</button>
+    </section>
+
+    <div id="apikey-row" class="card hidden">
+      <label for="apikey">Chiave API (richiesta da questo server)</label>
+      <input id="apikey" type="password" autocomplete="off" />
+    </div>
+
+    <p id="error" class="error hidden"></p>
+
+    <section id="queue-section" class="card hidden">
+      <h3>Download in corso</h3>
+      <div id="queue-list"></div>
+    </section>
+
+    <section class="card">
+      <div class="history-header">
+        <h3>Cronologia</h3>
+        <button id="refresh-history-btn" class="small">Aggiorna</button>
+      </div>
+      <div id="history-list" class="muted">Nessun download ancora.</div>
+    </section>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
